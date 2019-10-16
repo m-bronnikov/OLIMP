@@ -9,6 +9,9 @@
 
 #define MODULO 1000000007
 
+// buzy - number of elements in massive 
+// elememt j in massive Groups - number of persons in group j-1 (0 group not in massive)
+
 int main(){
   int32_t Q, x, g, buzy = 0;
   uint8_t n;
@@ -27,33 +30,38 @@ int main(){
 
     case 2:
       scanf("%"SCNd32" %"SCNd32, &g, &x);
-      --x;
-      --g;
+      --x; // we search number of room, rooms in [0, 1, ....], but x in [1, 2, ....]
+      --g; // 0 group not in vector
 
+      //if group not 0 and if has infinity persons: numbers of rooms in [1, 3, ..., 2t+1]
       if(g > 0 && !Groupes[g]){
         x<<=1;
         ++x;
       }
 
-
+      // search number of room:
       for(int32_t j = g+1; j < buzy; ++j){
+        // group j has k person: new x is x+k
         if(Groupes[j]){
           x+=Groupes[j];
-        }else{
+        }else{ // else: new x is 2x
           x<<=1;
         }
-
+        
+        // mod of res
         if(x >= MODULO){
-          x-=MODULO;
+          x-= MODULO;
         }
       }
       
+      // finally room
       printf("%"PRId32"\n", x);
       break;
 
     case 3:
       scanf("%"SCNd32, &x);
 
+      // making reverse expresion of case 2:
       int32_t j = buzy - 1;
       for(j = buzy-1; j >= 0; --j){
         if(Groupes[j]){
@@ -71,6 +79,7 @@ int main(){
         }
       }
 
+      // finally group:
       printf("%"PRId32"\n", ++j);
       break;
     
