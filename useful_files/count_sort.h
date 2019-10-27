@@ -16,12 +16,8 @@ unsigned* Count_Sort(unsigned* A, unsigned buzy){
   if(!buzy){
     return A;
   }
-  unsigned j = 0/*, C[SUPR]*/;
+  unsigned j = 0;
   unsigned* C = (unsigned*)malloc(sizeof(unsigned) * SUPR);
-  if(!C){
-    fprintf(stderr, "Allocate Second Vector Memory Error!\n");
-    exit(EXIT_SUCCESS);
-  }
   memset(C, 0, SUPR*sizeof(unsigned));
   for(j = 0; j < buzy; j++){
     ++C[A[j]];
@@ -30,15 +26,10 @@ unsigned* Count_Sort(unsigned* A, unsigned buzy){
     C[j]+=C[j-1];
   }
   unsigned* B = (unsigned*) malloc(sizeof(unsigned) * buzy);
-  if(!B){
-    fprintf(stderr, "Allocate Second Vector Memory Error!\n");
-    exit(EXIT_SUCCESS);
-  }
   for(j=buzy-1; j>0; j--){
     --C[A[j]];
     B[C[A[j]]] = A[j]; // in ~half of itterations
   }
-
   --C[A[0]];
   B[C[A[0]]] = A[0];
   free(A);

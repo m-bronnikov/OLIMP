@@ -2,6 +2,13 @@
 #define _PRIME_NUMS_
 
 #include <vector>
+#include <algorithm>
+
+bool isPrime(unsigned val);
+void erot_soive_num(unsigned lim, std::vector<unsigned>& result);
+void erot_soive_bool(unsigned lim, std::vector<bool>& result);
+void simple_factors_of_num(unsigned num, std::vector<unsigned>& result);
+
 
 bool isPrime(unsigned val){
     for(unsigned i = 2; i * i < val; ++i){
@@ -42,7 +49,7 @@ void erot_soive_bool(unsigned lim, std::vector<bool>& result){
 
 // get factors of num:
 
-void simple_factors_of_num(unsigned num, std::vector<unsigned> result){
+void simple_factors_of_num(unsigned num, std::vector<unsigned>& result){
     std::vector<unsigned> divs;
     erot_soive_num(num, divs);
     result.clear();
@@ -51,6 +58,7 @@ void simple_factors_of_num(unsigned num, std::vector<unsigned> result){
         num /= divs[num];
     }
     result.push_back(num);
+    std::sort(result.begin(), result.end());
 }
 
 #endif // _PRIME_NUMS_
