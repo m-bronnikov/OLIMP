@@ -1,5 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef _QUICK_SORT_
+#define _QUICK_SORT_
+#include <cstdlib>
+
+void qsortRecursive(unsigned *mas, unsigned size);
  
 //first arg: pointer to massive, second arg: len of massive
 void qsortRecursive(unsigned *mas, unsigned size) {
@@ -45,3 +48,5 @@ void qsortRecursive(unsigned *mas, unsigned size) {
         qsortRecursive(mas + i, size - i);
     }
 }
+
+#endif
