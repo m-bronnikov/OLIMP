@@ -22,11 +22,11 @@ unsigned* Count_Sort(unsigned* A, unsigned buzy){
   for(j = 0; j < buzy; j++){
     ++C[A[j]];
   }
-  for(j = 1; j < SUPR; j++){
+  for(j = 1; j < SUPR; ++j){
     C[j]+=C[j-1];
   }
   unsigned* B = (unsigned*) malloc(sizeof(unsigned) * buzy);
-  for(j=buzy-1; j>0; j--){
+  for(j=buzy-1; j>0; --j){
     --C[A[j]];
     B[C[A[j]]] = A[j]; // in ~half of itterations
   }
