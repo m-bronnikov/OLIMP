@@ -1,27 +1,25 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <inttypes.h>
 
 
 using namespace std;
 
 
-typedef struct PP{
-    double p1;
-    double p2;
-    double p3;
-}PP;
 
 typedef struct price_value{
     double p;
     int price;
 }Price_Value;
 
+// Сборка рюкзака билетами с наибольшим матожиданием
+
 double Math_Bag(vector<Price_Value> vec, int C){
     vector<double> v;
     vector<int> w;
     for(int j = 0; j < vec.size(); ++j){
-        int n = C / v[j].price;
+        int n = C / vec[j].price;
         for(int i = 0; i < n; ++i){
             v.push_back(vec[j].p);
             w.push_back(vec[j].price);
@@ -44,51 +42,4 @@ double Math_Bag(vector<Price_Value> vec, int C){
     }
 
     return res;
-}
-
-int main(){
-    short n, k, P, S;
-    cin >> n >> k >> S >> P;
-    double first, second, third;
-    vector<PP> vec(n);
-
-    for(short i = 0; i < n; ++i){
-        cin >> first >> second >> third;
-        if(first > second){
-            if(first > third){
-                vec[i].p1 = first;
-                if(second > third){
-                    vec[i].p2 = second;
-                    vec[i].p3 = third;
-                }else{
-                    vec[i].p2 = third;
-                    vec[i].p3 = second;
-                }
-            }else{
-                vec[i].p1 = third;
-                vec[i].p2 = first;
-                vec[i].p3 = second;
-            }
-        }else{
-            if(second > third){
-                vec[i].p1 = second;
-                if(first > third){
-                    vec[i].p2 = first;
-                    vec[i].p3 = third;
-                }else{
-                    vec[i].p2 = third;
-                    vec[i].p3 = first;
-                }
-            }else{
-                vec[i].p1 = third;
-                vec[i].p2 = second;
-                vec[i].p3 = first;
-            }           
-        }
-        //sorted[first_p[i]] = i;
-        //second_p[i]+=first_p[i];
-        //third_p[i]+=second_p[i]; 
-    }
-    
-
 }
