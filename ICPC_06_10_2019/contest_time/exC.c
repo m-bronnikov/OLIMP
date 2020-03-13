@@ -8,15 +8,15 @@ int main() {
 
 	scanf("%"SCNu32, &N);
 
-	uint_fast8_t *vec = (uint_fast8_t*) malloc(sizeof(uint_fast8_t) * N);
-	memset(vec, 0, N * sizeof(uint_fast8_t));
+	uint8_t *vec = (uint8_t*) malloc(sizeof(uint8_t) * N);
+	memset(vec, 0, N * sizeof(uint8_t));
 
-	uint_fast32_t n;
+	uint32_t n;
     
 
     for (uint32_t i = 0; i < N; ++i) {
     	scanf("%"SCNu32, &n);
-    	if ((n <= (uint_fast32_t) N) && !vec[n - 1]) {
+    	if ((n <= (uint32_t) N) && !vec[n - 1]) {
         	vec[n - 1] = 1;
     		++res;
     	}
