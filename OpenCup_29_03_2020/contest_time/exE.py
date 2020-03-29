@@ -30,11 +30,6 @@ for i in range(N):
     C_x = -det(c3, b3, c2, b2) / det(a3, b3, a2, b2)
     C_y = -det(a3, c3, a2, c2) / det(a3, b3, a2, b2)
 
-    #print("Points: ")
-    #print(A_x, A_y)
-    #print(B_x, B_y)
-    #print(C_x, C_y, '\n')
-
     # Find lenghts x y z
 
     m = ((B_x - A_x)*(B_x - A_x) + (B_y - A_y)*(B_y - A_y))**(0.5)
