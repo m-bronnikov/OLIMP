@@ -1,22 +1,14 @@
-
-
 def main():
     first, second = input().split()
 
+    # first check
     if len(first) != len(second):
         print(0)
         return
     
-    s1, s2 = set(first), set(second)
-
-    if len(s1) < len(s2):
-        print(0)
-        return
-
-    
-
     vocab = {}
 
+    # second check
     for c1, c2 in zip(first, second):
         if c1 not in vocab:
             vocab[c1] = c2
@@ -26,27 +18,29 @@ def main():
             print(0)
             return
 
-    if len(s1) < 33:
+    # if we have free litera, all simbols may be converted
+    
+    conv = {}
+
+    #print(vocab)
+
+    for k in vocab.keys():
+        conv[vocab[k]] = k
+
+    vocab = {}
+    for k in conv.keys():
+        vocab[conv[k]] = k
+
+    #print(vocab)
+    
+    if len(vocab.keys()) < 33:
         print(1)
         return
-        
-    for c1 in s1:
-        c = c1
 
-        if vocab[c] == c:
-            continue
-
-        was = {c}
-
-        while True:
-            if vocab[c] not in vocab or vocab[c] == c:
-                break
-            if vocab[c] in was:
-                print(0)
-                return
-            c = vocab[c]
-            was.add(c)
-    
+    for c in vocab.keys():
+        if vocab[c] != c:
+            print(0)
+            return
     print(1)
 
         
