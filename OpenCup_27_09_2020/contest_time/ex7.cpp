@@ -1,3 +1,4 @@
+// Made by Max Bronnikov
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -30,10 +31,8 @@ int main(){
             for(int j = i + 1; j < n; ++j){
                 int can;
                 cin >> can;
-                if(can){
-                    was[j] = 1;
-                    ++roads;
-                }
+                was[j] = can;
+                roads += can;
             }
         }
         cout << roads << endl;
