@@ -15,11 +15,13 @@ int main(){
         vector<int> was(n, 0);
 
         for(int i = 0; i < n; ++i){
+            // no need(just a read)
             for(int j = 0; j <= i; ++j){
                     int temp;
                     cin >> temp;
             }
 
+            // if was in this city => skip(just a read)
             if(was[i]){
                 for(int j = i + 1; j < n; ++j){
                     int temp;
@@ -27,7 +29,7 @@ int main(){
                 }
                 continue;
             }
-
+            // compute roads
             for(int j = i + 1; j < n; ++j){
                 int can;
                 cin >> can;
