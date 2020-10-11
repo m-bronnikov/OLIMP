@@ -1,3 +1,4 @@
+// Made by Max Bronnikov
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -46,18 +47,13 @@ void dfs3(
     int& ans1,
     const vector<vector<int>>& g
 ){
-    if(used.count(v)){
-        ans0 -= used[v] ^ 1;
-        ans1 -= used[v];
-    }
-
     used[v] = mode;
 
     ans0 += mode ^ 1;
     ans1 += mode;
 
     for (size_t i=0; i < g[v].size(); ++i){
-		if(!used.count(g[v][i]) || used[g[v][i]] == mode){
+		if(!used.count(g[v][i])){
 			dfs3(g[v][i], used, mode ^ 1, ans0, ans1, g);
         }
     }
@@ -108,7 +104,7 @@ int main() {
 	for (int i = 0; i < n; ++i) {
 		int v = order[n - 1 - i];
 		if (!used[v]) {
-			dfs2(v, used, component, g);
+			dfs2(v, used, component, g); // return component 
 
             int max = 0;
             for(auto c : component){
