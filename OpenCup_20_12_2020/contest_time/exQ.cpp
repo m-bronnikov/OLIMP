@@ -13,11 +13,9 @@ int main(){
     cin >> dist >> speed1 >> speed2;
     while(dist | speed1 | speed2){
 
-        long long secs1, secs2;
+        long long secs1;
 
         secs1 = round((double)(dist * 3600) / ((double)speed1) - (double)(dist * 3600) / ((double)speed2));
-
-        secs1 -= secs2;
 
         secs1 = secs1 < 0 ? -secs1 : secs1;
 
