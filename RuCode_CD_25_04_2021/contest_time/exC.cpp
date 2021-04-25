@@ -15,6 +15,7 @@ int main(){
         cin >> to_bob;
 
         if(to_bob > 0){
+            // impossible case
             if(to_bob > 1){
                 throw runtime_error("> 1");
             }
@@ -25,6 +26,7 @@ int main(){
         to_bob = -to_bob;
         ++to_bob; // count of `1`
 
+        // set ones to their positions
         for(int j = 0; j < to_bob; ++j){
             num |= 1 << (i + j);
         }
