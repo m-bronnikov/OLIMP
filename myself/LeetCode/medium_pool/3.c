@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define alphabet_size 256
+#define alphabet_size 128
 
 int lengthOfLongestSubstring(char* s){
     int idx_of_char[alphabet_size];
@@ -11,19 +11,18 @@ int lengthOfLongestSubstring(char* s){
     }
 
     int max_len = 0;
-    int best_start = -1;
-    
+    int start = -1;
+
     for(int i = 0; s[i] != '\0'; ++i)
     {
-        int start = (idx_of_char[s[i]] > best_start) ? idx_of_char[s[i]] : best_start;
-        int len = i - start;
+        start = (idx_of_char[s[i]] > start) ? idx_of_char[s[i]] : start;
 
+        int len = i - start;
         max_len = len > max_len ? len : max_len;
 
-        best_start = (idx_of_char[s[i]] > best_start) ? idx_of_char[s[i]] : best_start;
         idx_of_char[s[i]] = i;
     }
-    
+
     return max_len;
 }
 
