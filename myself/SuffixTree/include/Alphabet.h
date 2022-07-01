@@ -40,7 +40,7 @@ public:
     static constexpr std::array<int, max_alphabet_size> indices()
     {
         Accumulator acc;
-        std::fill_n(begin(acc.indices), acc.indices.size(), -1);
+        for(auto& idx : acc.indices) idx = -1; // fill with -1
         return (acc << ... << letters).indices;
     }
 
@@ -52,25 +52,25 @@ private:
         int size = 0;
     };
 
-    friend Accumulator& operator<<(Accumulator& helper, char c)
+    friend constexpr Accumulator& operator<<(Accumulator& helper, char c)
     {
         helper.indices[c] = helper.size++;
         return helper;
     }
 
 public:
-    constexpr Alphabet() : char_to_index(indices) {}
+    constexpr Alphabet() : char_to_index(indices()) {}
 
     // Returns '-1' if c is not in alphabet, otherwise value which '>= 0'.
-    int index_of(char c)
+    int index_of(char c) const
     {
         return char_to_index[c];
     }
 
     // Checks does provided string produced of this alphabet or not.
-    bool is_alphabet_of(const std::string& str)
+    bool is_alphabet_of(const std::string& str) const
     {
-        for(auto c : str)
+        for(char c : str)
             if(index_of(c) < 0)
                 return false;
         return true;
