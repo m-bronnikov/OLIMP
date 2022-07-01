@@ -8,7 +8,7 @@
 
 int main()
 {
-//    custom::SuffixTree<> tree("hey");
+    custom::SuffixTree<> tree("hey");
 
     std::cout << custom::Alphabet<'a', 'b', 'c', 'g'>::size() << std::endl;
     auto arr = custom::Alphabet<'a', 'b', 'c', 'g'>::indices();

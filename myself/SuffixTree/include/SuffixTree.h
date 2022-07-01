@@ -74,7 +74,7 @@ private:
     {
         constexpr Node();
 
-        reference_to_node suffix_conection;
+        reference_to_node suffix_connection;
         std::array<reference_to_edge, Alphabet::size()> edges_to_childs;
     };
 
@@ -163,15 +163,19 @@ private:
     int32_t length_to_end_from(int32_t start_pos) const { return expanded_string.size() - start_pos; }
 
 private:
+    // abstractions to create and access to edges
     reference_to_edge allocate_edge();
-    Edge& get_edge_by(reference_to_edge ref) const;
+    const Edge& get_edge_by(reference_to_edge ref) const { return edge_allocator[ref]; }
+    Edge& get_edge_by(reference_to_edge ref) { return edge_allocator[ref]; }
 
+    // abstractions to create and access to nodes
     reference_to_node allocate_node();
-    Node& get_node_by(reference_to_node ref) const;
+    const Node& get_node_by(reference_to_node ref) const { return node_allocator[ref]; }
+    Node& get_node_by(reference_to_node ref) { return node_allocator[ref]; }
 
-    bool is_leaf(reference_to_node ref) const;
+    // abstractions over leafs, leafs is just negative references
+    bool is_leaf(reference_to_node ref) const { return ref < 0; }
     int32_t leaf_num_of(reference_to_node ref) const;
-
 
 
 private:
@@ -179,7 +183,7 @@ private:
     std::string expanded_string;
 
     // alphabet for letters of expanded string
-    Alphabet alphabet;
+    static inline constexpr Alphabet alphabet{};
 
 
 private:
@@ -201,26 +205,6 @@ constexpr SuffixTree<Alphabet>::Node::Node()
 
 
 template <typename Alphabet>
-SuffixTree<Alphabet>::Edge& SuffixTree<Alphabet>::get_edge_by(reference_to_edge ref) const
-{
-    return edge_allocator.at(ref);
-}
-
-
-template <typename Alphabet>
-SuffixTree<Alphabet>::Node& SuffixTree<Alphabet>::get_node_by(reference_to_node ref) const
-{
-    return node_allocator.at(ref);
-}
-
-
-template <typename Alphabet>
-bool SuffixTree<Alphabet>::is_leaf(reference_to_node ref) const
-{
-    return ref < 0;
-}
-
-template <typename Alphabet>
 int32_t SuffixTree<Alphabet>::leaf_num_of(reference_to_node ref) const
 {
     assert(is_leaf(ref));
@@ -229,11 +213,26 @@ int32_t SuffixTree<Alphabet>::leaf_num_of(reference_to_node ref) const
 
 
 template<typename Alphabet>
-SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::create_dummy_node()
+typename SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::allocate_node()
+{
+    node_allocator.emplace_back();
+    return node_allocator.size() - 1;
+}
+
+template<typename Alphabet>
+typename SuffixTree<Alphabet>::reference_to_edge SuffixTree<Alphabet>::allocate_edge()
+{
+    edge_allocator.emplace_back();
+    return edge_allocator.size() - 1;
+}
+
+
+template<typename Alphabet>
+typename SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::create_dummy_node()
 {
     // create dummy node
     auto dummy_addr = allocate_node();
-    auto dummy = get_node_by(dummy_addr);
+    Node& dummy = get_node_by(dummy_addr);
 
     // suffix connection of dummy node could be any, let's it be dummy node itself
     dummy.suffix_connection = dummy_addr;
@@ -246,9 +245,9 @@ SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::create_dummy_node(
         // dummy is suffix connection of root, so length of each edge 
         // must be '1' since jump by suffix connection decreases suffix 
         // length by 1 letter
-        auto edge = get_edge_by(edge_addr);
+        Edge& edge = get_edge_by(edge_addr);
         {
-            edge.start_pos = -1; // some invalid start position
+            edge.start_position = -1; // some invalid start position
             edge.length = 1;
             edge.next_node_addr = root_addr;
         }
@@ -268,8 +267,8 @@ SuffixTree<Alphabet>::SuffixTree(const std::string& source) : expanded_string(so
     root_addr = allocate_node();
     auto dummy_addr = create_dummy_node();
 
-    // root has suffix conection to dummy node
-    auto root = get_node_by(root_addr);
+    // root has suffix connection to dummy node
+    Node& root = get_node_by(root_addr);
     root.suffix_connection = dummy_addr;
 
     // do main routine and construct suffix tree
@@ -281,24 +280,24 @@ template<typename Alphabet>
 void SuffixTree<Alphabet>::go_using_suffix_connection(InnerPosition& iterator) const
 {
     // jump to node by suffix connection
-    iterator.node_addr = get_node_by(iterator.node_addr).suffix_conection;
+    iterator.node_addr = get_node_by(iterator.node_addr).suffix_connection;
     if(iterator.position == 0)
     {
         return;
     }
-    const auto& node = get_node_by(iterator.node_addr);
+    const Node& node = get_node_by(iterator.node_addr);
 
     // update edge
     {
         char ch = expanded_string[get_edge_by(iterator.edge_addr).start_position];
-        iterator.edge_addr = node.edges_to_childs[alphabet.idx_of(ch)];
+        iterator.edge_addr = node.edges_to_childs[alphabet.index_of(ch)];
         assert(iterator.edge_addr != -1);
     }
 
     // go over edges until position is larger than edge size
     while(iterator.position >= get_edge_by(iterator.edge_addr).length)
     {
-        const auto& edge = get_edge_by(iterator.edge_addr);
+        const Edge& edge = get_edge_by(iterator.edge_addr);
 
         // update node and position
         iterator.node_addr = edge.next_node_addr;
@@ -313,18 +312,16 @@ void SuffixTree<Alphabet>::go_using_suffix_connection(InnerPosition& iterator) c
 
         // update edge
         char ch = expanded_string[edge.start_position + edge.length];
-        const auto& node = get_node_by(iterator.node_addr);
-        iterator.edge_addr = node.edges_to_childs[alphabet.idx_of(ch)];
+        const Node& node = get_node_by(iterator.node_addr);
+        iterator.edge_addr = node.edges_to_childs[alphabet.index_of(ch)];
     }
 }
-
-
 
 
 template <typename Alphabet>
 bool SuffixTree<Alphabet>::is_position_in_node_without_path(uint32_t new_ch_pos, const InnerPosition& iterator) const
 {
-    auto node = get_node_by(iterator.node_addr);
+    const Node& node = get_node_by(iterator.node_addr);
     char ch = expanded_string[new_ch_pos];
 
     // statement is true if position inside inner node and no connection exist for new char
@@ -346,12 +343,14 @@ bool SuffixTree<Alphabet>::is_position_in_edge_without_path(uint32_t new_ch_pos,
     // first letter in the string is always in inner node
     assert(new_ch_pos > 0);
 
+    // current edge
+    const Edge& edge = get_edge_by(iterator.edge_addr);
+
     // check previous letter is mathes and placed in right position
     assert(iterator.position < edge.length);
     assert(expanded_string[new_ch_pos - 1] == expanded_string[edge.start_position + iterator.position - 1]);
     
-    // second case: we are in edge
-    auto edge = get_edge_by(iterator.edge_addr);
+    // statement is false if next char of edge matches with char from 'new_ch_pos'
     char ch = expanded_string[new_ch_pos];
     if(expanded_string[edge.start_position + iterator.position] == ch)
         return false;
@@ -360,13 +359,13 @@ bool SuffixTree<Alphabet>::is_position_in_edge_without_path(uint32_t new_ch_pos,
 }
 
 template <typename Alphabet>
-SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::add_node_in(const InnerPosition& iterator)
+typename SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::add_node_in(const InnerPosition& iterator)
 {
     // allocate new node and edge
     auto new_edge_addr = allocate_edge();
     auto new_node_addr = allocate_node();
 
-    auto edge = get_edge_by(iterator.edge_addr);
+    Edge& edge = get_edge_by(iterator.edge_addr);
 
     // position must be inside edge
     assert(iterator.position > 0);
@@ -375,14 +374,14 @@ SuffixTree<Alphabet>::reference_to_node SuffixTree<Alphabet>::add_node_in(const 
     uint32_t ch_pos = edge.start_position + iterator.position;
     char ch = expanded_string[ch_pos];
 
-    auto new_edge = get_edge_by(new_edge_addr);
+    Edge& new_edge = get_edge_by(new_edge_addr);
     {
         new_edge.length = edge.length - iterator.position;
         new_edge.start_position = ch_pos;
         new_edge.next_node_addr = edge.next_node_addr;
     }
 
-    auto new_node = get_node_by(new_node_addr);
+    Node& new_node = get_node_by(new_node_addr);
     {
         new_node.edges_to_childs[alphabet.index_of(ch)] = new_edge_addr;
     }
@@ -398,14 +397,14 @@ void SuffixTree<Alphabet>::create_new_edge_to_leaf_from_node(uint32_t new_ch_pos
     static reference_to_node leaf_addr_allocator = 0;
     reference_to_node new_leaf_addr = --leaf_addr_allocator;
 
-    auto node = get_node_by(node_addr);
+    Node& node = get_node_by(node_addr);
     char ch = expanded_string[new_ch_pos];
     
     // edge by char must not exist before
     assert(node.edges_to_childs[alphabet.index_of(ch)] == no_connection);
 
     auto edge_addr = allocate_edge();
-    auto edge = get_edge_by(edge_addr);
+    Edge& edge = get_edge_by(edge_addr);
     {
         edge.start_position = new_ch_pos;
         edge.length = length_to_end_from(new_ch_pos);
@@ -420,7 +419,7 @@ template <typename Alphabet>
 void SuffixTree<Alphabet>::second_stage(uint32_t new_ch_pos, InnerPosition& iterator)
 {
     // define initial node to pass suffix connections
-    reference_to_node last_node_addr = iterator.node_addr;
+    reference_to_node last_node_addr = get_node_by(root_addr).suffix_connection; // init with dummy node
     if(is_position_in_edge_without_path(new_ch_pos, iterator))
     {
         last_node_addr = add_node_in(iterator);
@@ -432,14 +431,14 @@ void SuffixTree<Alphabet>::second_stage(uint32_t new_ch_pos, InnerPosition& iter
     {
         // connect last node with new created using suffix connection
         reference_to_node new_node_addr = add_node_in(iterator);
-        get_node_by(last_node_addr).suffix_conection = new_node_addr;
+        get_node_by(last_node_addr).suffix_connection = new_node_addr;
         last_node_addr = new_node_addr;
         create_new_edge_to_leaf_from_node(new_ch_pos, new_node_addr);
         go_using_suffix_connection(iterator);
     }
 
     // connect last node to obtained using suffix connection
-    get_node_by(last_node_addr).suffix_conection == iterator.node_addr;
+    get_node_by(last_node_addr).suffix_connection == iterator.node_addr;
 
     while(is_position_in_node_without_path(new_ch_pos, iterator))
     {
@@ -461,15 +460,15 @@ template <typename Alphabet>
 void SuffixTree<Alphabet>::go_over_one_letter_next(char ch, InnerPosition& iterator) const
 {
     // if current position in inner node: define edge
-    if(iterator.length == 0)
+    if(iterator.position == 0)
     {
-        auto const node = get_node_by(iterator.node_addr);
+        const Node& node = get_node_by(iterator.node_addr);
 
         iterator.edge_addr = node.edges_to_childs.at(alphabet.index_of(ch));
         assert(iterator.edge_addr != no_connection);
     }
 
-    const auto edge = get_edge_by(iterator.edge_addr);
+    const Edge& edge = get_edge_by(iterator.edge_addr);
 
     // check letters mathes
     assert(expanded_string[edge.start_position + iterator.position] == ch);
@@ -480,7 +479,7 @@ void SuffixTree<Alphabet>::go_over_one_letter_next(char ch, InnerPosition& itera
     // update node addr if end is obtained
     if(iterator.position == edge.length)
     {
-        iterator.node_addr = edge.node_addr;
+        iterator.node_addr = edge.next_node_addr;
         iterator.edge_addr = -1; // undefine
         iterator.position = 0;
     }
