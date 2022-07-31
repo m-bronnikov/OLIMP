@@ -107,7 +107,15 @@ public:
      * @param pattern string to match as substring
      * @returns position of first occurrence of patern and `-1` if not found
      */
-    int32_t contains(std::string_view pattern) const;
+    int32_t index_of(std::string_view pattern) const;
+
+    /**
+     * @brief Substring matching
+     * 
+     * @param pattern string to match as substring
+     * @returns true if pattern is found and false otherwise
+     */
+    bool contains(std::string_view pattern) const { return index_of(pattern) != -1; }
 
 private:
     // entry point to tree building
@@ -536,7 +544,7 @@ void SuffixTree<Alphabet>::construct_tree()
 
 
 template <typename Alphabet>
-int32_t SuffixTree<Alphabet>::contains(std::string_view pattern) const
+int32_t SuffixTree<Alphabet>::index_of(std::string_view pattern) const
 {
     InnerPosition iterator = {root_addr, no_connection, 0};
 
