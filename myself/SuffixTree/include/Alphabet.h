@@ -19,11 +19,11 @@ class Alphabet
 {
 public:
     // Max possible alphabet size.
-    static constexpr int max_alphabet_size = 256;
+    static constexpr int32_t max_alphabet_size = 256;
 
 public:
     // Size of alphabet.
-    static constexpr int size()
+    static constexpr int32_t size()
     {
         return sizeof...(letters);
     }
@@ -49,7 +49,7 @@ private:
     struct Accumulator
     {
         std::array<int, max_alphabet_size> indices{};
-        int size = 0;
+        int32_t size = 0;
     };
 
     friend constexpr Accumulator& operator<<(Accumulator& helper, char c)
@@ -62,7 +62,7 @@ public:
     constexpr Alphabet() : char_to_index(indices()) {}
 
     // Returns '-1' if c is not in alphabet, otherwise value which '>= 0'.
-    int index_of(char c) const
+    int32_t index_of(char c) const
     {
         return char_to_index[c];
     }
