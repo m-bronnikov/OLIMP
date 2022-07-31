@@ -8,9 +8,6 @@
 #include <vector>
 #include <array>
 
-#define _CALL_STACK
-
-
 namespace custom
 {
 
@@ -103,7 +100,14 @@ private:
 
 public:
     SuffixTree(std::string_view source);
-    bool contains(std::string_view pattern) const;
+
+    /**
+     * @brief Substring matching
+     * 
+     * @param pattern string to match as substring
+     * @returns position of first occurrence of patern and `-1` if not found
+     */
+    int32_t contains(std::string_view pattern) const;
 
 private:
     // entry point to tree building
@@ -495,7 +499,7 @@ void SuffixTree<Alphabet>::go_over_one_letter_next(char ch, InnerPosition& itera
     {
         const Node& node = get_node_by(iterator.node_addr);
 
-        iterator.edge_addr = node.edges_to_childs.at(alphabet.index_of(ch));
+        iterator.edge_addr = node.edges_to_childs[alphabet.index_of(ch)];
         assert(iterator.edge_addr != no_connection);
     }
 
@@ -532,10 +536,17 @@ void SuffixTree<Alphabet>::construct_tree()
 
 
 template <typename Alphabet>
-bool SuffixTree<Alphabet>::contains(std::string_view pattern) const
+int32_t SuffixTree<Alphabet>::contains(std::string_view pattern) const
 {
     InnerPosition iterator = {root_addr, no_connection, 0};
-    
+
+    if(pattern.size() == 0) {
+        return 0;
+    }
+
+    reference_to_node dummy_addr = get_dummy();
+    reference_to_edge last_edge_addr = get_node_by(dummy_addr).edges_to_childs.front();
+
     for(char ch : pattern)
     {
         // define node
@@ -548,7 +559,7 @@ bool SuffixTree<Alphabet>::contains(std::string_view pattern) const
             iterator.edge_addr = node.edges_to_childs[alphabet.index_of(ch)];
             if(iterator.edge_addr == no_connection)
             {
-                return false;
+                return -1;
             }
         }
         const Edge& edge = get_edge_by(iterator.edge_addr);
@@ -556,7 +567,7 @@ bool SuffixTree<Alphabet>::contains(std::string_view pattern) const
         // false if encoded string on edge not matches with pattern
         if(expanded_string[edge.start_position + iterator.position] != ch)
         {
-            return false;
+            return -1;
         }
 
         // update position
@@ -565,6 +576,8 @@ bool SuffixTree<Alphabet>::contains(std::string_view pattern) const
         // update node if needed
         if(edge.length == iterator.position)
         {
+            last_edge_addr = iterator.edge_addr;
+
             iterator.node_addr = edge.next_node_addr;
             iterator.edge_addr = no_connection;
             iterator.position = 0;
@@ -574,7 +587,21 @@ bool SuffixTree<Alphabet>::contains(std::string_view pattern) const
         }
     }
 
-    return true;
+    reference_to_edge edge_addr = iterator.edge_addr;
+    int32_t edge_position = iterator.position;
+
+    // use last edge if current position in node
+    if(iterator.edge_addr == no_connection)
+    {
+        edge_addr = last_edge_addr;
+        edge_position = get_edge_by(edge_addr).length;
+    }
+
+    // define position of first occurence
+    const Edge& edge = get_edge_by(edge_addr);
+    int32_t position = edge.start_position + edge_position - pattern.size();
+    assert(position >= 0);
+    return position;
 }
 
 } // custom
